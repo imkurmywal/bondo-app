@@ -28,12 +28,19 @@ dependencies:
   flutter_country_picker:
   pin_code_fields:
 
+  # UI Dependencies
+  modal_progress_hud:
+
   # Firebase Dependencies
   firebase_core:
   firebase_auth:
   cloud_firestore:
   firebase_analytics:
   google_sign_in:
+
+  # Provider Dependencies
+  provider:
+
 
 dev_dependencies:
   flutter_test:
