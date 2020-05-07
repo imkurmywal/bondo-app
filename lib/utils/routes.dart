@@ -13,6 +13,12 @@ class AppRoutes {
     Navigator.of(context).pushNamed(page);
   }
 
+  static void pushWithArguments(BuildContext context, String page,
+      {@required Map<String, dynamic> arguments}) {
+    print("passing : ${arguments}");
+    Navigator.of(context).pushNamed(page, arguments: arguments);
+  }
+
   static void replace(BuildContext context, String page) {
     Navigator.of(context).pushReplacementNamed(page);
   }

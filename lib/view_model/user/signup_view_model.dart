@@ -1,6 +1,7 @@
 import 'package:bondo/model/user.dart';
 import 'package:bondo/repository/user_repository.dart' as userRepo;
 import 'package:bondo/view_model/firebase_request.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_country_picker/country.dart';
 
@@ -42,6 +43,16 @@ class SignUpViewModel extends ChangeNotifier implements FirebaseRequest {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<bool> isEmailAlreadyExist({String email}) async {
+    final QuerySnapshot result = await Firestore.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    return documents.length == 1;
   }
 
   @override

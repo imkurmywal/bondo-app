@@ -1,13 +1,17 @@
+import 'dart:convert';
 import 'package:bondo/config/size_config.dart';
 import 'package:bondo/screens/login.dart';
+import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+
 
 class PhoneVerification extends StatefulWidget {
   @override
@@ -19,6 +23,87 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   bool obsure = true;
   Country _selected;
   bool confirmationBody = false;
+
+  static bool isLoading = true;
+
+  static String verificationCode;
+
+  final confrimController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    final routes =
+        ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    print(routes['phone']);
+    PhoneVerificationService.verify(
+        number: routes['phone'],
+        autoRetrievalTimeout: (String verId) {
+          verificationCode = verId;
+          print("AutoRetrival Timeout: $verificationCode");
+        },
+        phoneCodeSent: (String verId, [int forceCodeResend]) {
+          verificationCode = verId;
+          print("CodeSent : $verificationCode");
+        },
+        phoneVerificationCompleted: (AuthCredential credential) {
+          print(
+              'CRED : ${credential.toString()} : ${credential.toString().runtimeType}');
+          print(json.encode(credential));
+          print(json.encode(credential)[0]);
+          print("Success ${credential}");
+          Map<String, dynamic> map = credential as Map<String, dynamic>;
+          print("MAP : $map");
+          print("map c : ${map['jsonObject']['zzb']}");
+          if (map['jsonObject']['zzb'] != null) {
+            print('${map['jsonObject']['zzb']}');
+            setState(() {
+              confirmationCode = map['zzb'].toString();
+              confrimController.text = confirmationCode;
+            });
+          }
+        },
+        phoneVerificationFailed: (AuthException exception) {
+          print("${exception.message}");
+        });
+  }
+
+  send() {
+    final routes =
+        ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    print(routes['phone']);
+    PhoneVerificationService.verify(
+        number: routes['phone'],
+        autoRetrievalTimeout: (String verId) {
+          verificationCode = verId;
+          print("AutoRetrival Timeout: $verificationCode");
+        },
+        phoneCodeSent: (String verId, [int forceCodeResend]) {
+          verificationCode = verId;
+          print("CodeSent : $verificationCode");
+        },
+        phoneVerificationCompleted: (AuthCredential credential) {
+          print('CRED : ${credential} : AS ST : ${credential.toString()}');
+          final js = credential.toString();
+          print("js : $js");
+          try {
+            print(credential.runtimeType);
+          } catch (e) {
+            print("exception $e");
+          }
+          print("Success ${credential}");
+        },
+        phoneVerificationFailed: (AuthException exception) {
+          print("${exception.message}");
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +168,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
         Container(
           width: SizeConfig.screenWidth,
           child: PinCodeTextField(
+            controller: confrimController,
             length: 6,
             obsecureText: false,
             animationType: AnimationType.fade,
@@ -100,22 +186,24 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             },
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Text(
-            'Instead of Code Call me?',
-            style: TextStyle(
-                fontSize: 15,
-                color: Colors.blue,
-                fontWeight: FontWeight.w500,
-                decoration: TextDecoration.underline),
-          ),
-        ),
+//        Padding(
+//          padding: EdgeInsets.only(top: 20),
+//          child: Text(
+//            'Instead of Code Call me?',
+//            style: TextStyle(
+//                fontSize: 15,
+//                color: Colors.blue,
+//                fontWeight: FontWeight.w500,
+//                decoration: TextDecoration.underline),
+//          ),
+//        ),
         SizedBox(
           height: SizeConfig.blockSizeVertical * 5,
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            send();
+          },
           child: Container(
             height: SizeConfig.blockSizeVertical * 6,
             decoration: BoxDecoration(

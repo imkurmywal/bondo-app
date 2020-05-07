@@ -1,5 +1,7 @@
 import 'package:bondo/config/size_config.dart';
 import 'package:bondo/model/user.dart';
+import 'package:bondo/screens/phone_verification.dart';
+import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:bondo/view_model/user/signup_view_model.dart';
@@ -416,21 +418,37 @@ class SignUpPage extends StatelessWidget {
 
       provider.isLoading = true;
 
-      final user = User(
-          name: fullName,
-          email: email,
-          phone: '+${provider.country.dialingCode.toString()}$number');
+      bool isExist = await provider.isEmailAlreadyExist(email: email);
+      if (isExist) {
+        MySnackBar(
+            context: context,
+            text: 'Account with same email already exist',
+            color: Colors.red);
+        provider.isLoading = false;
+      } else {
+        print('phone' + '+${provider.country.dialingCode.toString()}$number');
+        final phoneVerificationResults = await AppRoutes.pushWithArguments(
+            context, Routes.PHONE_VERIFICATION, arguments: {
+          'phone': '+${provider.country.dialingCode.toString()}$number'
+        });
+        if (phoneVerificationResults as bool) {
+          final user = User(
+              name: fullName,
+              email: email,
+              phone: '+${provider.country.dialingCode.toString()}$number');
 
-      await provider.createUser(user: user, password: password);
+          await provider.createUser(user: user, password: password);
 
-      if (provider.onSuccess != null) {
-        if (!provider.onSuccess) {
-          MySnackBar(
-              context: context,
-              text: '${provider.responseMessage}',
-              color: Colors.red);
-        } else {
-          AppRoutes.push(context, Routes.PHONE_VERIFICATION);
+          if (provider.onSuccess != null) {
+            if (!provider.onSuccess) {
+              MySnackBar(
+                  context: context,
+                  text: '${provider.responseMessage}',
+                  color: Colors.red);
+            } else {
+              print('Goto Welcome Page');
+            }
+          }
         }
       }
     }
