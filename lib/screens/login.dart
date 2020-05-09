@@ -1,4 +1,5 @@
 import 'package:bondo/config/size_config.dart';
+import 'package:bondo/screens/all_tabview.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:bondo/view_model/user/login_view_model.dart';
@@ -213,8 +214,9 @@ class LoginPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      loginAction(context);
-                    },
+                 AppRoutes.push(context,Routes.All_Tabs);
+                      /*     loginAction(context);
+                 */   },
                     child: Container(
                       height: SizeConfig.screenHeight * .06,
                       decoration: BoxDecoration(

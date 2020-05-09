@@ -27,6 +27,8 @@ dependencies:
   email_validator:
   flutter_country_picker:
   pin_code_fields:
+  language_pickers:
+  google_maps_flutter:
 
   # UI Dependencies
   modal_progress_hud:
