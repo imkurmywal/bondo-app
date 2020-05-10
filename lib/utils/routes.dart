@@ -6,9 +6,11 @@ class Routes {
   static const PHONE_VERIFICATION = '/phone_verification';
   static const LOGIN = '/login';
   static const FORGET_PASSWORD = '/forget_password';
-  static const All_Tabs = '/all_tabview';
-  static const Settings = '/setting';
-
+  static const MAP_SCREEN = '/map_screen';
+  static const VOICE_MESSAGES = '/voice_messages';
+  static const NOTIFICATIONS = '/notifications';
+  static const PROFILE = '/profile';
+  static const SETTINGS = '/settings';
 }
 
 class AppRoutes {

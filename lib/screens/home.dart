@@ -140,7 +140,8 @@ class _HomeState extends State<Home> {
           children: [
             GestureDetector(
               onTap: () {
-                AppRoutes.push(context, Routes.SIGN_UP);
+                AppRoutes.push(context, Routes.MAP_SCREEN);
+//                AppRoutes.push(context, Routes.SIGN_UP);
               },
               child: Container(
                 height: SizeConfig.blockSizeVertical * 6,

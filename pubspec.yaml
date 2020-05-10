@@ -32,6 +32,7 @@ dependencies:
 
   # UI Dependencies
   modal_progress_hud:
+  fancy_bottom_bar:
 
   # Firebase Dependencies
   firebase_core:
