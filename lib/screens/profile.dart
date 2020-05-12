@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:bondo/config/size_config.dart';
 import 'package:bondo/utils/color.dart';
@@ -8,14 +9,14 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
- String userName='john@gmail.com',email='john@gmail.com',password='**********',mobileNumber='+44 1234564789';
+ String userName,email,password,mobileNumber='';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: GestureDetector(
-          onTap: (){AppRoutes.pop(context);
+          onTap: (){ AppRoutes.replace(context,Routes.All_Tabs);
           },
           child: Icon(
             Icons.arrow_back_ios
@@ -78,7 +79,35 @@ class _ProfileState extends State<Profile> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
 
                 ),
-              child: Text(userName),
+              child:  new Container(
+                width: SizeConfig.screenWidth * .7,
+                decoration: BoxDecoration(),
+                padding:
+                const EdgeInsets.only(left: 0.0, right: 10.0),
+                child: new Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new Expanded(
+                      child: TextFormField(
+                        onChanged: (val) => {userName = val},
+                        validator: (value) {
+                          if (value.isEmpty ) {
+                            return 'Please enter a valid username';
+                          }
+                          return null;
+                        },
+                        textAlign: TextAlign.left,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'john@gmail.com',
+                          hintStyle: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               ),
 
             ],
@@ -101,7 +130,36 @@ class _ProfileState extends State<Profile> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
 
                 ),
-                child: Text(email),
+                child: new Container(
+                  width: SizeConfig.screenWidth * .7,
+                  decoration: BoxDecoration(),
+                  padding:
+                  const EdgeInsets.only(left: 0.0, right: 10.0),
+                  child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      new Expanded(
+                        child: TextFormField(
+                          onChanged: (val) => {email = val},
+                          validator: (value) {
+                            if (value.isEmpty ||
+                                !EmailValidator.validate(value)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                          textAlign: TextAlign.left,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'john@gmail.com',
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
             ],
@@ -127,7 +185,35 @@ class _ProfileState extends State<Profile> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(password),
+                    new Container(
+                      width: SizeConfig.screenWidth * .6,
+                      decoration: BoxDecoration(),
+                      padding:
+                      const EdgeInsets.only(left: 0.0, right: 10.0),
+                      child: new Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          new Expanded(
+                            child: TextFormField(
+                              onChanged: (val) => {password = val},
+                              validator: (value) {
+                                if (value.isEmpty ) {
+                                  return 'Please enter a valid password';
+                                }
+                                return null;
+                              },
+                              textAlign: TextAlign.left,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '**************',
+                                hintStyle: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     GestureDetector(
                       onTap: _changePassword,
                       child: Container(
@@ -169,7 +255,35 @@ class _ProfileState extends State<Profile> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
 
                 ),
-                child: Text(mobileNumber),
+                child: new Container(
+                  width: SizeConfig.screenWidth * .7,
+                  decoration: BoxDecoration(),
+                  padding:
+                  const EdgeInsets.only(left: 0.0, right: 10.0),
+                  child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      new Expanded(
+                        child: TextFormField(
+                          onChanged: (val) => {mobileNumber = val},
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter a valid number';
+                            }
+                            return null;
+                          },
+                          textAlign: TextAlign.left,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: '+44 1234564789',
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ),
 
             ],

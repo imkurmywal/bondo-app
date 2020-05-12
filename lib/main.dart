@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bondo/screens/all_tabview.dart';
 import 'package:bondo/screens/setting.dart';
+import 'package:bondo/screens/reply.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,8 +28,7 @@ void main() {
         Routes.FORGET_PASSWORD: (context) => ForgetPassword(),
         Routes.All_Tabs: (context) => AllTabs(),
         Routes.Settings: (context) => Setting(),
-
-
+        Routes.Reply: (context) => Reply(),
       },
     ));
   });

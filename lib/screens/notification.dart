@@ -26,7 +26,7 @@ class _NotificationsState extends State<Notifications> {
     'your Voice Note',
     ];
   List<String> option = [
-    '  streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',
+    'Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',' Heliopolis streets renovation',
   ];
   String location='Newyork,USA';
 
@@ -37,8 +37,7 @@ class _NotificationsState extends State<Notifications> {
         backgroundColor: Colors.white,
         leading: GestureDetector(
           onTap: (){
-            AppRoutes.pop(context);
-          },
+            AppRoutes.replace(context,Routes.All_Tabs);   },
           child: Icon(
             Icons.arrow_back_ios
             ,color: Colors.black, ),

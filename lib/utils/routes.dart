@@ -8,6 +8,7 @@ class Routes {
   static const FORGET_PASSWORD = '/forget_password';
   static const All_Tabs = '/all_tabview';
   static const Settings = '/setting';
+  static const Reply = '/reply';
 
 }
 

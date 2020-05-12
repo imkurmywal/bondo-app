@@ -49,7 +49,7 @@ class SignUpPage extends StatelessWidget {
                 SizedBox(
                   height: 50,
                 ),
-                _logoView(),
+                _logoView(context),
                 SizedBox(
                   height: 20,
                 ),
@@ -341,7 +341,7 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  Widget _logoView() {
+  Widget _logoView(BuildContext context) {
     return Column(
       children: [
         new Row(
@@ -349,7 +349,7 @@ class SignUpPage extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                print("GoBack");
+         AppRoutes.pop(context);
               },
               child: Icon(
                 Icons.arrow_back_ios,

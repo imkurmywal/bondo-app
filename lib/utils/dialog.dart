@@ -33,7 +33,7 @@ class CustomDialog extends StatelessWidget {
 
               duration: Duration(milliseconds: 300),
               alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width*.9,
+              width: MediaQuery.of(context).size.width*.95,
               height: dialog == false ? 0 : height,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(

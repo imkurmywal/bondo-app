@@ -1,4 +1,5 @@
 import 'package:bondo/screens/mainscreen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bondo/screens/profile.dart';
 import 'package:bondo/screens/notification.dart';
@@ -35,7 +36,8 @@ class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin{
                 icon: new Icon(Icons.person),
               ),
             ],
-            indicatorColor: Colors.white,
+
+            indicatorColor: Colors.blue,
             indicatorSize: TabBarIndicatorSize.tab,),
         body:TabBarView(
             children: [
