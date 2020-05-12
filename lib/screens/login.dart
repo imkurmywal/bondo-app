@@ -317,6 +317,7 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<void> loginAction(context) async {
+    AppRoutes.push(context, Routes.MAP_SCREEN);
     if (_formKey.currentState.validate()) {
       final provider = Provider.of<LoginViewModel>(context, listen: false);
 
@@ -331,7 +332,7 @@ class LoginPage extends StatelessWidget {
               text: '${provider.responseMessage}',
               color: Colors.red);
         } else {
-          AppRoutes.push(context, Routes.PHONE_VERIFICATION);
+          AppRoutes.push(context, Routes.MAP_SCREEN);
         }
       }
     }
