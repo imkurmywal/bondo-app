@@ -29,7 +29,9 @@ dependencies:
   pin_code_fields:
   language_pickers:
   google_maps_flutter:
-
+  flutter_sound:
+  audio_recorder:
+  flutter_timer:
   # UI Dependencies
   modal_progress_hud:
   fancy_bottom_bar:

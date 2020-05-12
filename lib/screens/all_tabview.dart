@@ -1,4 +1,9 @@
+/*<<<<<<< HEAD*/
+import 'package:bondo/screens/mainscreen.dart';
+import 'package:flutter/cupertino.dart';
+/*=======*/
 import 'package:bondo/screens/map_screen.dart';
+/*>>>>>>> 1e053328800b8fc25f375ea0c4cd251c3569ecf8*/
 import 'package:flutter/material.dart';
 import 'package:bondo/screens/profile.dart';
 import 'package:bondo/screens/notifications.dart';
@@ -18,36 +23,41 @@ class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        bottomNavigationBar: TabBar(
-          unselectedLabelColor: Colors.grey,
-          labelColor: Colors.blue,
-          tabs: [
-            new Tab(
-              icon: Icon(Icons.home),
-            ),
-            new Tab(
-              icon: new Icon(Icons.chat),
-            ),
-            new Tab(
-              icon: new Icon(Icons.notifications),
-            ),
-            new Tab(
-              icon: new Icon(Icons.person),
-            ),
-          ],
-          indicatorColor: Colors.white,
-          indicatorSize: TabBarIndicatorSize.tab,
-        ),
-        body: TabBarView(
-          children: [
-            MapScreen(),
-            VoiceMessage(),
-            Notifications(),
-            Profile(),
-          ],
-          controller: _tabController,
-        ),
-      ),
+/*<<<<<<< HEAD*/
+          bottomNavigationBar: TabBar(
+            unselectedLabelColor: Colors.grey,
+            labelColor: Colors.blue,
+            tabs: [
+              new Tab( icon: Icon(Icons.home),
+              ),
+              new Tab(
+                icon: new Icon(Icons.chat),
+              ),
+
+              new Tab(
+                icon: new Icon(Icons.notifications),
+              ),
+              new Tab(
+                icon: new Icon(Icons.person),
+              ),
+            ],
+
+            indicatorColor: Colors.blue,
+            indicatorSize: TabBarIndicatorSize.tab,),
+        body:TabBarView(
+            children: [
+              MainScreen(),
+              VoiceMessage(),
+              Notifications(),
+              Profile(),
+
+            ],
+            controller: _tabController,),
+
+/*=======*/
+
+/*>>>>>>> 1e053328800b8fc25f375ea0c4cd251c3569ecf8
+    */  ),
     );
   }
 }

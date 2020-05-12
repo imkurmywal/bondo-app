@@ -61,7 +61,7 @@ class LoginPage extends StatelessWidget {
   Widget _backCard(context) {
     return Container(
       width: SizeConfig.screenWidth,
-      height: SizeConfig.blockSizeVertical * 61,
+      height: SizeConfig.blockSizeVertical * 66,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20)),

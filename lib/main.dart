@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bondo/screens/all_tabview.dart';
 import 'package:bondo/screens/setting.dart';
+import 'package:bondo/screens/reply.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,12 +30,18 @@ void main() {
         Routes.PHONE_VERIFICATION: (context) => PhoneVerification(),
         Routes.LOGIN: (context) => Login(),
         Routes.FORGET_PASSWORD: (context) => ForgetPassword(),
+/*<<<<<<< HEAD*/
+        Routes.All_Tabs: (context) => AllTabs(),
+        Routes.Settings: (context) => Setting(),
+        Routes.Reply: (context) => Reply(),
+/*=======*/
         Routes.MAP_SCREEN: (context) => MapScreen(),
         Routes.VOICE_MESSAGES: (context) => VoiceMessage(),
         Routes.NOTIFICATIONS: (context) => Notifications(),
         Routes.PROFILE: (context) => Profile(),
         Routes.SETTINGS: (context) => Setting(),
-      },
+/*>>>>>>> *//*1e053328800b8fc25f375ea0c4cd251c3569ecf8
+  */    },
     ));
   });
 }

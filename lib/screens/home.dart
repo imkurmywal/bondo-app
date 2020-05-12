@@ -76,18 +76,21 @@ class _HomeState extends State<Home> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   color: Colors.white),
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/facebook.png'),
-                    maxRadius: 15,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: Text('Login With Facebook'),
-                  ),
-                ],
+              child: Padding(
+                padding: EdgeInsets.only(left: 15),
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/facebook.png'),
+                      maxRadius: 15,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: Text('Login With Facebook'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -102,21 +105,18 @@ class _HomeState extends State<Home> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   color: Colors.white),
-              child: Padding(
-                padding: EdgeInsets.only(left: 15),
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/gmail.png'),
-                      maxRadius: 15,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 20),
-                      child: Text('Login With Google'),
-                    ),
-                  ],
-                ),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/gmail.png'),
+                    maxRadius: 15,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text('Login With Google'),
+                  ),
+                ],
               ),
             ),
           ),
