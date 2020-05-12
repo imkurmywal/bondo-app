@@ -214,9 +214,8 @@ class LoginPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                 AppRoutes.push(context,Routes.All_Tabs);
-                      /*     loginAction(context);
-                 */   },
+                      loginAction(context);
+                    },
                     child: Container(
                       height: SizeConfig.screenHeight * .06,
                       decoration: BoxDecoration(

@@ -1,16 +1,20 @@
+/*<<<<<<< HEAD*/
 import 'package:bondo/screens/mainscreen.dart';
 import 'package:flutter/cupertino.dart';
+/*=======*/
+import 'package:bondo/screens/map_screen.dart';
+/*>>>>>>> 1e053328800b8fc25f375ea0c4cd251c3569ecf8*/
 import 'package:flutter/material.dart';
 import 'package:bondo/screens/profile.dart';
-import 'package:bondo/screens/notification.dart';
-import 'package:bondo/screens/voice_Message.dart';
+import 'package:bondo/screens/notifications.dart';
+import 'package:bondo/screens/voice_messages.dart';
 
 class AllTabs extends StatefulWidget {
   @override
   _AllTabsState createState() => _AllTabsState();
 }
 
-class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin{
+class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin {
   int page = 0;
   TabController _tabController;
   PageController _pageController = PageController();
@@ -19,6 +23,7 @@ class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin{
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+/*<<<<<<< HEAD*/
           bottomNavigationBar: TabBar(
             unselectedLabelColor: Colors.grey,
             labelColor: Colors.blue,
@@ -49,7 +54,10 @@ class _AllTabsState extends State<AllTabs> with SingleTickerProviderStateMixin{
             ],
             controller: _tabController,),
 
-      ),
+/*=======*/
+
+/*>>>>>>> 1e053328800b8fc25f375ea0c4cd251c3569ecf8
+    */  ),
     );
   }
 }
