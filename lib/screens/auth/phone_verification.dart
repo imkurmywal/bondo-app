@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:bondo/config/size_config.dart';
-import 'package:bondo/screens/login.dart';
+import 'file:///C:/Users/TYB/Desktop/Work/Fiverr%20Adloo/adloo_bondo/lib/screens/auth/login.dart';
 import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 
 class PhoneVerification extends StatefulWidget {
   @override

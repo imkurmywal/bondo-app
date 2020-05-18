@@ -1,6 +1,6 @@
 import 'package:bondo/config/size_config.dart';
 import 'package:bondo/model/user.dart';
-import 'package:bondo/screens/phone_verification.dart';
+import 'file:///C:/Users/TYB/Desktop/Work/Fiverr%20Adloo/adloo_bondo/lib/screens/auth/phone_verification.dart';
 import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
@@ -349,7 +349,7 @@ class SignUpPage extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-         AppRoutes.pop(context);
+                AppRoutes.pop(context);
               },
               child: Icon(
                 Icons.arrow_back_ios,
