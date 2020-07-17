@@ -1,7 +1,4 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
+
 import 'package:bondo/utils/color.dart';
 
 import 'package:bondo/config/size_config.dart';
@@ -9,10 +6,7 @@ import 'package:bondo/utils/dialog.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_sound/flauto.dart';
-import 'package:flutter_sound/flutter_sound_player.dart';
-import 'package:flutter_sound/flutter_sound_recorder.dart';
+
 class VoiceMessage extends StatefulWidget {
   @override
   _VoiceMessageState createState() => _VoiceMessageState();

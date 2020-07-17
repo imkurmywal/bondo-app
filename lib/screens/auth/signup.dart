@@ -1,7 +1,5 @@
 import 'package:bondo/config/size_config.dart';
 import 'package:bondo/model/user.dart';
-import 'file:///C:/Users/TYB/Desktop/Work/Fiverr%20Adloo/adloo_bondo/lib/screens/auth/phone_verification.dart';
-import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:bondo/view_model/user/signup_view_model.dart';
@@ -28,6 +26,7 @@ class SignUp extends StatelessWidget {
 class SignUpPage extends StatelessWidget {
   String fullName, email, password, number, confirmationCode;
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
@@ -254,12 +253,15 @@ class SignUpPage extends StatelessWidget {
                     ),
                   ),
                   child: CountryPicker(
-                    showDialingCode:
-                        true, //displays dialing code, false by default
+                    showDialingCode: true,
+                    //displays dialing code, false by default
                     showFlag: false,
-                    showName: false, //displays country name, true by default
-                    showCurrency: false, //eg. 'British pound'
-                    showCurrencyISO: false, //eg. 'GBP'
+                    showName: false,
+                    //displays country name, true by default
+                    showCurrency: false,
+                    //eg. 'British pound'
+                    showCurrencyISO: false,
+                    //eg. 'GBP'
                     onChanged: (Country country) {
                       Provider.of<SignUpViewModel>(context, listen: false)
                           .country = country;
@@ -290,7 +292,8 @@ class SignUpPage extends StatelessWidget {
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       WhitelistingTextInputFormatter.digitsOnly
-                    ], // Only numbers can be entered
+                    ],
+                    // Only numbers can be entered
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: '1234564789 ',

@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "752133627909",
+    "firebase_url": "https://bondo-59973.firebaseio.com",
+    "project_id": "bondo-59973",
+    "storage_bucket": "bondo-59973.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752133627909:android:f81557ba176d983054bc6c",
+        "android_client_info": {
+          "package_name": "com.adloo.bondo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752133627909-15etr24tatn318rk9ige5dsk1aumv6e3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adloo.bondo",
+            "certificate_hash": "aaca707965e52b0223e4fb2140ec9b6ffa9cf5cd"
+          }
+        },
+        {
+          "client_id": "752133627909-g4rho166j3soqrp34pnppdisc9ol4mlo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adloo.bondo",
+            "certificate_hash": "1e927e364bc6b45d4f75278aa348cd9845275781"
+          }
+        },
+        {
+          "client_id": "752133627909-6uopkn5gas92imilc6mmbec49mto3d14.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM4CksKg6eI9TNitRSQhl1GLwxXDfss2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "752133627909-6uopkn5gas92imilc6mmbec49mto3d14.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

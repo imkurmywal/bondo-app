@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "951987340141",
+    "firebase_url": "https://adloo-app.firebaseio.com",
+    "project_id": "adloo-app",
+    "storage_bucket": "adloo-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951987340141:android:55c73e9bcbe62e79f5d064",
+        "android_client_info": {
+          "package_name": "com.adloo.bondo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "951987340141-dusm8simshvcekjc6n6ol7hhfair376i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adloo.bondo",
+            "certificate_hash": "8a0c84586c1761dfbbab9e2a4ddb62cbe66d5a18"
+          }
+        },
+        {
+          "client_id": "951987340141-mpbbt3fjl2e2t0t9klkaasf74tv8sv9t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUx9bd2AE-V94--ouaBjq3j6bQYCfzGUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951987340141-mpbbt3fjl2e2t0t9klkaasf74tv8sv9t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,17 @@
 import 'package:bondo/config/size_config.dart';
-import 'package:bondo/utils/color.dart';
-import 'package:bondo/utils/routes.dart';
+import 'package:bondo/screens/auth/phonelogin.dart';
+import 'package:bondo/screens/getStartedPage.dart';
+import 'package:bondo/screens/profileFisrst.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bondo/utils/routes.dart';
+
+final GoogleSignIn googleSignIn = GoogleSignIn();
 
 class Home extends StatefulWidget {
   @override
@@ -10,17 +19,97 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  FacebookLogin fblogin = FacebookLogin();
+
+
+
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final GoogleSignIn googleSignIn = new GoogleSignIn();
+
+    Future<FirebaseUser> signInWithGoogle() async {
+      final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication =
+      await googleSignInAccount.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      final AuthResult authResult = await _auth.signInWithCredential(credential);
+      final FirebaseUser user = authResult.user;
+      print(user.displayName.toString());
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
+
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.uid == currentUser.uid);
+
+      return user;
+    }
+
+
+  @override
+  void initState() {
+//    googleSignIn.onCurrentUserChanged.listen((account) {
+//      handleSignIn(account);
+//    }, onError: (e) {
+//      print(e);
+//    });
+
+//    googleSignIn.signInSilently(suppressErrors: false).then((account) {
+//      handleSignIn(account);
+//    });
+  }
+
+
+//  final GoogleSignIn _googleSignIn = GoogleSignIn();
+//  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+
+//  handleSignIn(GoogleSignInAccount account) async{
+//    if (account != null) {
+//      print('\n\nSuccess   ${account.id}\n\n\n');
+//
+////
+////      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+////      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+////
+////      final AuthCredential credential = GoogleAuthProvider.getCredential(
+////        accessToken: googleAuth.accessToken,
+////        idToken: googleAuth.idToken,
+////      );
+////
+////      final FirebaseUser user = (await _auth.signInWithCredential(credential)).user;
+////    print("signed in " + user.displayName);
+//
+//      Navigator.push(context,
+//          MaterialPageRoute(builder: (BuildContext context) => FirstProfile(
+//            phone: null,
+//            name: account.displayName,
+//            email: account.email,
+//            img: account.photoUrl,
+//            uid: account.id,
+//          )));
+//    }
+//  }
+
+  storeUid(String uid) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('uid', uid);
+  }
+
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
     return Scaffold(
+      backgroundColor: Color.fromRGBO(76, 123, 254, 1),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
           ),
         ),
         child: Column(
@@ -31,7 +120,10 @@ class _HomeState extends State<Home> {
               ),
               _logoView(),
               _socialButtons(),
-              _getStartedWidget()
+              SizedBox(
+                height: 20,
+              ),
+              //_getStartedWidget()
             ]),
       ),
     );
@@ -68,7 +160,50 @@ class _HomeState extends State<Home> {
         Padding(
           padding: EdgeInsets.only(top: 10),
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              fblogin.logIn(['email', 'public_profile']).then(
+                  (FacebookLoginResult fbResult) {
+                if (fbResult != null) {
+                  // if facebook login result is loggedIn then
+                  if (fbResult.status == FacebookLoginStatus.loggedIn) {
+                    String facebookToken = fbResult.accessToken.token;
+
+                    print("facebookToken is: ${facebookToken}");
+
+                    AuthCredential credential =
+                        FacebookAuthProvider.getCredential(
+                            accessToken: facebookToken);
+
+                    FirebaseAuth.instance
+                        .signInWithCredential(credential)
+                        .then((AuthResult authResult) {
+                      AdditionalUserInfo userInfo =
+                          authResult.additionalUserInfo;
+//                      print("facebook userName is: ${userInfo.username}");
+//                      print("facebook user profile is: ${userInfo.profile}");
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => FirstProfile(
+                                    uid: authResult.user.uid,
+                                    img: authResult.user.photoUrl,
+                                    email: authResult.user.email,
+                                    name: authResult.user.displayName,
+                                    phone: authResult.user.phoneNumber,
+                                  )));
+                    }).catchError((error) {
+                      print("error occurred while firebase tokenizing: $error");
+                    });
+                  }
+                } else {
+                  print("facebook login result is null");
+                }
+              }).catchError((e) {
+                print(e);
+                print('\n\n\n\no  External Error\n\n\n\n\n');
+              });
+            },
             child: Container(
               width:
                   SizeConfig.screenWidth - SizeConfig.blockSizeHorizontal * 20,
@@ -98,7 +233,18 @@ class _HomeState extends State<Home> {
         Padding(
           padding: EdgeInsets.only(top: 20),
           child: GestureDetector(
-            onTap: () {},
+            onTap: (){
+            signInWithGoogle().then((account) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) => FirstProfile(
+                    phone: null,
+                    name: account.displayName,
+                    email: account.email,
+                    img: account.photoUrl,
+                    uid: account.uid,
+                  )));
+            }) ;
+    },
             child: Container(
               width: SizeConfig.screenWidth - 80,
               height: SizeConfig.blockSizeVertical * 7,
@@ -121,80 +267,39 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _getStartedWidget() {
-    return Container(
-      width: SizeConfig.screenWidth,
-      height: SizeConfig.blockSizeVertical * 20,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-          color: Colors.white),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: () {
-                AppRoutes.push(context, Routes.MAP_SCREEN);
-//                AppRoutes.push(context, Routes.SIGN_UP);
-              },
-              child: Container(
-                height: SizeConfig.blockSizeVertical * 6,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: green),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      'Get Started',
-                      style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: whitecolor),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.navigate_next,
-                          color: whitecolor,
-                        )),
-                  ],
-                ),
+        Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => PhoneLogin()));
+            },
+            child: Container(
+              width: SizeConfig.screenWidth - 80,
+              height: SizeConfig.blockSizeVertical * 7,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.phone),
+//                  CircleAvatar(
+//                    child: Icon(Icons.phone),
+//                    maxRadius: 15,
+//                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text('Login With Phone'),
+                  ),
+                ],
               ),
             ),
-            Column(
-              children: [
-                Text(
-                  'By continuing  you agree that you have read and accept our',
-                  style: TextStyle(fontSize: 12),
-                ),
-                new Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Terms of Services ',
-                        style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontSize: 12)),
-                    Text('and', style: TextStyle(fontSize: 12)),
-                    Text(' Privacy Policy',
-                        style: TextStyle(
-                            decoration: TextDecoration.underline, fontSize: 12))
-                  ],
-                )
-              ],
-            )
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

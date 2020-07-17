@@ -13,19 +13,16 @@ class _SettingState extends State<Setting> {
   Language _selectedDropdownLanguage =
   LanguagePickerUtils.getLanguageByIsoCode('ko');
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: GestureDetector(
-          onTap: (){AppRoutes.pop(context);
-          },
-
-          child: Icon(
+        leading: IconButton(onPressed: (){AppRoutes.pop(context);},
+        icon: Icon(
           Icons.arrow_back_ios
-          ,color: Colors.black, ),
-        ),
+          ,color: Colors.black,),),
     title: Text('Settings',style: TextStyle(color: Colors.black,fontSize: 20),),
 
     ),
@@ -62,7 +59,7 @@ class _SettingState extends State<Setting> {
               width: SizeConfig.blockSizeVertical*6,
             ),
             LanguagePickerDropdown(
-              initialValue: 'ko',
+              initialValue: 'en',
               itemBuilder: _buildDropdownItem,
               onValuePicked: (Language language) {
                 _selectedDropdownLanguage = language;

@@ -36,7 +36,10 @@ class MyDrawer extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context);
+                      AppRoutes.push(context, Routes.PROFILE);
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[

@@ -11,3 +11,5 @@ public class MainActivity extends FlutterActivity {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
   }
 }
+
+

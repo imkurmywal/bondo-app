@@ -1,22 +1,32 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:bondo/main.dart';
+import 'package:audioplayer/audioplayer.dart';
 import 'package:bondo/config/size_config.dart';
+import 'package:bondo/screens/reply.dart';
 import 'package:bondo/utils/color.dart';
-import 'package:bondo/utils/dialog.dart';
 import 'package:bondo/utils/routes.dart';
 import 'package:bondo/widgets/bottomNavBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
+import 'package:share_extend/share_extend.dart';
 class VoiceMessage extends StatefulWidget {
   @override
   _VoiceMessageState createState() => _VoiceMessageState();
 }
-enum t_MEDIA {
-  FILE,
-  BUFFER,
-  ASSET,
-  STREAM,
-  REMOTE_EXAMPLE_FILE,
-}
+Firestore firestore = Firestore.instance;
+//enum t_MEDIA {
+//  FILE,
+//  BUFFER,
+//  ASSET,
+//  STREAM,
+//  REMOTE_EXAMPLE_FILE,
+//}
 
+enum PlayerState { stopped, playing, paused }
 class _VoiceMessageState extends State<VoiceMessage> {
 /*
   bool _isRecording = false;
@@ -647,321 +657,158 @@ class _VoiceMessageState extends State<VoiceMessage> {
     });
   }
 */
-  String description='My opinion about Heliopolis streets renovation',location='Newyork,USA',distance='2.4';
-  String duration='00:00',rename;
-  int timeplays=223,love=21,likes=124;
-  bool delete=false;
-  List<int> deleteList= new List();
+//  String description='My opinion about Heliopolis streets renovation',location='Newyork,USA',distance='2.4';
+//  String duration='00:00',rename;
+//  int timeplays=223,love=21,likes=124;
+//  bool delete=false;
+//  List<int> deleteList= new List();
+
+  int  distance = 12;
+  String currentDuration = '00:00';
+  String totalDuration = '00:00';
+  AudioPlayer audioplayer = AudioPlayer();
+  Duration duration;
+  Duration position;
+
+  PlayerState playerState = PlayerState.stopped;
+
+  get isPlaying => playerState == PlayerState.playing;
+  get isPaused => playerState == PlayerState.paused;
+
+  get durationText =>
+      duration != null ? duration.toString().split('.').first : '';
+
+  get positionText =>
+      position != null ? position.toString().split('.').first : '';
+
+  bool isMuted = false;
+  double playPosition=0;
+  StreamSubscription _positionSubscription;
+  StreamSubscription _audioPlayerStateSubscription;
+
+  void onComplete() {
+    setState(() {
+      playerState = PlayerState.stopped;
+    });
+  }
+
+
+  void initAudioPlayer() {
+    audioplayer = AudioPlayer();
+    _positionSubscription = audioplayer.onAudioPositionChanged
+        .listen((p) => setState(() => position = p));
+    _audioPlayerStateSubscription =
+        audioplayer.onPlayerStateChanged.listen((s) {
+          if (s == AudioPlayerState.PLAYING) {
+            setState(() => duration = audioplayer.duration);
+          } else if (s == AudioPlayerState.STOPPED) {
+            onComplete();
+            setState(() {
+              position = duration;
+            });
+          }else if (s == AudioPlayerState.COMPLETED) {
+            onComplete();
+
+          }
+        }, onError: (msg) {
+          setState(() {
+            playerState = PlayerState.stopped;
+            duration = Duration(seconds: 0);
+            position = Duration(seconds: 0);
+          });
+        });
+  }
+
+
+
+  List<DocumentSnapshot> users = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    firestore.collection('users').getDocuments().then((value){
+      users = value.documents;
+      setState(() {
+        isLoading = false;
+      });
+    });
+
+    initAudioPlayer();
+    audioplayer.onAudioPositionChanged.listen((Duration duration) {
+      setState(() {
+        this.currentDuration = duration.toString().split('.')[0];
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription.cancel();
+    _audioPlayerStateSubscription.cancel();
+    audioplayer.stop();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    /* final recorderProgressIndicator = _isRecording
-        ? LinearProgressIndicator(
-      value: 100.0 / 160.0 * (this._dbLevel ?? 1) / 100,
-      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-      backgroundColor: Colors.red,
-    )
-        : Container();
-    final playerControls = Row(
-      children: <Widget>[
-        Container(
-          width: 56.0,
-          height: 56.0,
-          child: ClipOval(
-            child: FlatButton(
-              onPressed: onStartPlayerPressed(),
-              padding: EdgeInsets.all(8.0),
-              child: Image(
-                image: AssetImage(onStartPlayerPressed() != null ? 'res/icons/ic_play.png' : 'res/icons/ic_play_disabled.png'),
-              ),
-            ),
-          ),
-        ),
-        Container(
-          width: 56.0,
-          height: 56.0,
-          child: ClipOval(
-            child: FlatButton(
-              onPressed: onPauseResumePlayerPressed(),
-              padding: EdgeInsets.all(8.0),
-              child: Image(
-                width: 36.0,
-                height: 36.0,
-                image: AssetImage(onPauseResumePlayerPressed() != null ? 'res/icons/ic_pause.png' : 'res/icons/ic_pause_disabled.png'),
-              ),
-            ),
-          ),
-        ),
-        Container(
-          width: 56.0,
-          height: 56.0,
-          child: ClipOval(
-            child: FlatButton(
-              onPressed: onStopPlayerPressed(),
-              padding: EdgeInsets.all(8.0),
-              child: Image(
-                width: 28.0,
-                height: 28.0,
-                image: AssetImage(onStopPlayerPressed() != null ? 'res/icons/ic_stop.png' : 'res/icons/ic_stop_disabled.png'),
-              ),
-            ),
-          ),
-        ),
-      ],
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-    );
-    final playerSlider = Container(
-        height: 56.0,
-        child: Slider(
-            value: min(sliderCurrentPosition, maxDuration),
-            min: 0.0,
-            max: maxDuration,
-            onChanged: (double value) async {
-              await playerModule.seekToPlayer(value.toInt());
-            },
-            divisions: maxDuration == 0.0 ? 1 : maxDuration.toInt()));
-
-    final dropdowns = makeDropdowns(context);
-    final trackSwitch = Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text('Track Player:'),
-          ),
-          Switch(
-            value: _isAudioPlayer,
-            onChanged: audioPlayerSwitchChanged(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4.0),
-            child: Text('Duck Others:'),
-          ),
-          Switch(
-            value: _duckOthers,
-            onChanged: duckOthersSwitchChanged(),
-          ),
-        ],
-      ),
-    );
-
-    Widget recorderSection = Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-      Container(
-        margin: EdgeInsets.only(top: 12.0, bottom: 16.0),
-        child: Text(
-          this._recorderTxt,
-          style: TextStyle(
-            fontSize: 35.0,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      _isRecording ? LinearProgressIndicator(value: 100.0 / 160.0 * (this._dbLevel ?? 1) / 100, valueColor: AlwaysStoppedAnimation<Color>(Colors.green), backgroundColor: Colors.red) : Container(),
-      Row(
-        children: <Widget>[
-          Container(
-            width: 56.0,
-            height: 50.0,
-            child: ClipOval(
-              child: FlatButton(
-                onPressed: onStartRecorderPressed(),
-                padding: EdgeInsets.all(8.0),
-                child: Image(
-                  image: recorderAssetImage(),
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: 56.0,
-            height: 50.0,
-            child: ClipOval(
-              child: FlatButton(
-                onPressed: onPauseResumeRecorderPressed(),
-                disabledColor: Colors.white,
-                padding: EdgeInsets.all(8.0),
-                child: Image(
-                  width: 36.0,
-                  height: 36.0,
-                  image: AssetImage(onPauseResumeRecorderPressed() != null ? 'res/icons/ic_pause.png' : 'res/icons/ic_pause_disabled.png'),
-                ),
-              ),
-            ),
-          ),
-        ],
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-      ),
-    ]);
-
-    Widget playerSection = Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(top: 12.0, bottom: 16.0),
-          child: Text(
-            this._playerTxt,
-            style: TextStyle(
-              fontSize: 35.0,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        Row(
-          children: <Widget>[
-            Container(
-              width: 56.0,
-              height: 50.0,
-              child: ClipOval(
-                child: FlatButton(
-                  onPressed: onStartPlayerPressed(),
-                  disabledColor: Colors.white,
-                  padding: EdgeInsets.all(8.0),
-                  child: Image(
-                    image: AssetImage(onStartPlayerPressed() != null ? 'res/icons/ic_play.png' : 'res/icons/ic_play_disabled.png'),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              width: 56.0,
-              height: 50.0,
-              child: ClipOval(
-                child: FlatButton(
-                  onPressed: onPauseResumePlayerPressed(),
-                  disabledColor: Colors.white,
-                  padding: EdgeInsets.all(8.0),
-                  child: Image(
-                    width: 36.0,
-                    height: 36.0,
-                    image: AssetImage(onPauseResumePlayerPressed() != null ? 'res/icons/ic_pause.png' : 'res/icons/ic_pause_disabled.png'),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              width: 56.0,
-              height: 50.0,
-              child: ClipOval(
-                child: FlatButton(
-                  onPressed: onStopPlayerPressed(),
-                  disabledColor: Colors.white,
-                  padding: EdgeInsets.all(8.0),
-                  child: Image(
-                    width: 28.0,
-                    height: 28.0,
-                    image: AssetImage(onStopPlayerPressed() != null ? 'res/icons/ic_stop.png' : 'res/icons/ic_stop_disabled.png'),
-                  ),
-                ),
-              ),
-            ),
-          ],
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-        ),
-        Container(
-            height: 30.0,
-            child: Slider(
-                value: min(sliderCurrentPosition, maxDuration),
-                min: 0.0,
-                max: maxDuration,
-                onChanged: (double value) async {
-                  await playerModule.seekToPlayer(value.toInt());
-                },
-                divisions: maxDuration == 0.0 ? 1 : maxDuration.toInt())),
-        Container(
-          height: 30.0,
-          child: Text(_duration != null ? "Duration: $_duration sec." : ''),
-        ),
-      ],
-    );
-*/
     return Scaffold(
         bottomNavigationBar: bottomNavBar(context, 1),
 
         appBar: AppBar(
           backgroundColor: Colors.white,
-          leading: GestureDetector(
-            onTap: (){ AppRoutes.pop(context);
-            },
-
-            child: Icon(
-              Icons.arrow_back_ios
-              ,color: Colors.black, ),
-          ),
-          title: Text(delete==false?'Voice Message':'Select'+'('+deleteList.length.toString()+')'  ,style: TextStyle(color: Colors.black,fontSize: 20),),
-          actions: [
-            delete==true?Row(
-              children: [
-                GestureDetector(
-                  onTap: (){
-                    setState(() {
-                      for(int i=0;i<6;i++){
-                        if(deleteList.contains(i)){}
-                        else{
-                          deleteList.add(i);
-                        }
-
-                      }
-                    });
-
-
-                  },
-
-                  child: Text('Select All',style: TextStyle(color: Colors.blue),),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: GestureDetector(
-                    onTap: (){
-                      if(deleteList.length>1 && deleteList.length!=6){
-                        showDialog(context: context,child: _deletespecficPopUP());
-
-                      }
-                      if(deleteList.length==6){
-
-                        showDialog(context: context,child: _deleteAllPopUP());
-
-                      }
-                      else if (deleteList.length==1){
-                        showDialog(context: context,child: _deletePopUP());
-
-                      }
-
-
-                    },
-                    child: Icon(Icons.delete,color: red,),
-                  ),
-                ),
-
-              ],
-
-            ):GestureDetector(
-              child: Icon(Icons.search,color: Colors.black,size: 25,),
-
-            ),
-            SizedBox(
-              width: 10,
-            )
-
-          ],
+          title: Text('Voice Message',style: TextStyle(color: Colors.black,fontSize: 20),),
+//          actions: [
+//            GestureDetector(
+//              child: Icon(Icons.search,color: Colors.black,size: 25,),
+//
+//            ),
+//            SizedBox(
+//              width: 10,
+//            )
+//
+//          ],
         ),
         body: Container(
           width: SizeConfig.screenWidth,
           height: SizeConfig.screenHeight,
-          child: Column(
+          child: isLoading ? Center(child: CircularProgressIndicator(),) : Column(
 
 
             children: [
 
-              Container(
+               Container(
                 height: SizeConfig.screenHeight-150,
-                child: ListView.builder(
-                    itemCount: 6,
-                    itemBuilder: (BuildContext context, index) =>_message(index)),
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: firestore.collection("notes")
+                        .orderBy("timestamp",descending: true).where('isApproved',isEqualTo: true).snapshots(),
+                    builder: (context, snapshot) {
+
+                      if (!snapshot.hasData) {
+                        return  Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            child:
+                            Center(child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                                child: Text('No Voice Note Found',style: TextStyle(color: Colors.grey),)
+                            ),)
+                        );
+                      }
+
+                      final Data = snapshot.data.documents;
+
+                      return Data.length == 0 ? Center(child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                          child: Text('No Voice Note Found',style: TextStyle(color: Colors.grey),)
+                      ),) :ListView.builder(
+                          itemCount: Data.length,
+                          itemBuilder: (BuildContext context, index) {
+                            return _message(Data[index]);
+                          });
+                    }
+                ),
               ),
 
             ],
@@ -971,36 +818,32 @@ class _VoiceMessageState extends State<VoiceMessage> {
         ));
 
   }
-  Widget _message(int index){
-    return GestureDetector(
+   _message(DocumentSnapshot doc){
+
+    print(users.length);
+   DocumentSnapshot myDoc =  users.firstWhere((element) {
+    return element.documentID == doc.data['uid'];
+    });
+
+   print(myDoc.data['pic']);
+
+    String img = myDoc.data['pic'];
+    //String img = null;
+//    firestore.collection('users').document(doc.data['uid']).get().then((value) {
+//      setState(() {
+//        img =  value.data['pic'];
+//      });
+//     });
+
+     return GestureDetector(
       onTap: (){
-        if(deleteList.length==0){
-          setState(() {
-            delete=false;
-          });
-        }
 
-        if(delete==true){
-
-
-          setState(() {
-            if(deleteList.contains(index)){
-              deleteList.remove(index);
-
-            }
-            else{
-              deleteList.add(index);
-
-            }
-          });
-
-        }
       },
 
       child: Container(
         margin: EdgeInsets.only(top: 5,bottom: 5),
         width: SizeConfig.screenWidth,
-        color: deleteList.contains(index)?red:Colors.white,
+        // color: deleteList.contains(index)?red:Colors.white,
         child: Container(
           width: SizeConfig.screenWidth-30,
           margin: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -1008,7 +851,7 @@ class _VoiceMessageState extends State<VoiceMessage> {
           decoration: BoxDecoration(
               color:Colors.white,
               borderRadius: BorderRadius.all(
-                Radius.circular(20),
+                Radius.circular(10),
               ),
               boxShadow: [
                 BoxShadow(
@@ -1017,13 +860,15 @@ class _VoiceMessageState extends State<VoiceMessage> {
               ]),
           child: Column(
             children: [
-              _upperPart(index),
-              Padding(padding: EdgeInsets.only(top: 5),
-                child: _play(),
-              ),
+              _upperPart(doc,img),
+//              Padding(padding: EdgeInsets.only(top: 5),
+//                child: _play(doc),
+//              ),
 
               SizedBox(height: 10,),
-              _option(),
+              _option(doc,img),
+
+              SizedBox(height: 10,),
             ],
 
 
@@ -1034,42 +879,318 @@ class _VoiceMessageState extends State<VoiceMessage> {
     );
 
   }
-  Widget _option(){
+
+
+
+  void onLiked(DocumentSnapshot doc) {
+
+    print(MyUid);
+
+    firestore
+        .collection('notes')
+        .document(doc.documentID).collection('likes').document(MyUid).setData({'fav':true});
+  }
+
+  void onFav(DocumentSnapshot Note) {
+    print(MyUid);
+
+    firestore
+        .collection('notes')
+        .document(Note.documentID).collection('fav').document(MyUid).setData({'fav':true});
+  }
+
+
+  Widget _option(DocumentSnapshot doc,String img){
     return  new Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        new Row(
-          children: [
-            Icon(Icons.volume_up,color: Colors.blue,)
-            ,Text(timeplays.toString())
-          ],
-        ),
-        new Row(
-          children: [
-            Icon(Icons.share,color: Colors.grey,)
-          ],
-        ),
-        new Row(
-          children: [
-            Image.asset('assets/images/love.png',scale: 3.5,)
-            ,Padding(
-                padding: EdgeInsets.only(left: 3),
 
-                child: Text(love.toString()))
-          ],
-        ),
         new Row(
           children: [
-            Image.asset('assets/images/like.png',scale: 3.5,)
-            ,Padding(
-                padding: EdgeInsets.only(left: 3),
-                child: Text(likes.toString()))
+            InkWell(
+              onTap: () => sendShare(doc.data['noteUrl'],doc.data['title']),
+              child: Icon(
+                Icons.share,
+                color: Colors.grey,
+              ),
+            ),
           ],
+        ),
+
+        StreamBuilder<QuerySnapshot>(
+            stream: firestore.collection('notes').document(doc.documentID).collection('fav').snapshots(),
+            builder: (context, snapshot) {
+
+
+              bool isFav;
+
+              if(!snapshot.hasData){
+                return
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: (){
+
+                          if(isFav){
+                            print('deleted');
+                            firestore
+                                .collection('notes')
+                                .document(doc.documentID).collection('fav').document(MyUid).delete();
+
+                            firestore.collection('fav').document(MyUid).collection('fav').document(doc.documentID).delete();
+                          }else{
+                            print('added');
+                            firestore
+                                .collection('notes')
+                                .document(doc.documentID).collection('fav').document(MyUid).setData({'fav':true});
+
+                            firestore.collection('fav').document(MyUid).collection('fav').document(doc.documentID).setData({
+                              'noteUrl': doc.data['noteUrl'],
+                              'uid': MyUid,
+                              'title': doc.data['title'],
+                              'address': Mainaddress,
+                              'pic': doc.data['pic'],
+                              'token': messagingToken,
+                              'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch
+                            });
+                          }
+
+
+                        },
+                        child: Icon(Icons.favorite_border,color: Colors.red,),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(left: 3),
+                          child: Text("0"))
+//                StreamBuilder<QuerySnapshot>(
+//                  stream: firestore.collection('notes').document(Note.documentID).collection('fav').snapshots(),
+//                  builder: (BuildContext context, snapshot){
+//
+//                    if(!snapshot.hasData){
+//                      return Padding(
+//                          padding: EdgeInsets.only(left: 3),
+//                          child: Text("0"));
+//                    }
+//                    int FavCount = snapshot.data.documents.length;
+//
+//                    return Padding(
+//                        padding: EdgeInsets.only(left: 3),
+//                        child: Text(FavCount.toString()));
+//                  },
+//                ),
+                    ],
+                  );
+              }
+
+              List<DocumentSnapshot> Data = snapshot.data.documents;
+
+              int FavCount = Data.length;
+
+//               bool isFav =  Data.where()
+
+              isFav = snapshot.data.documents.any((element) => element.documentID == MyUid);
+
+
+              return Row(
+                children: [
+                  InkWell(
+                    onTap: (){
+
+                      if(isFav){
+                        print('deleted');
+                        firestore
+                            .collection('notes')
+                            .document(doc.documentID).collection('fav').document(MyUid).delete();
+
+                        firestore.collection('fav').document(MyUid).collection('fav').document(doc.documentID).delete();
+                      }else{
+                        print('added');
+                        firestore
+                            .collection('notes')
+                            .document(doc.documentID).collection('fav').document(MyUid).setData({'fav':true});
+
+                        firestore.collection('fav').document(MyUid).collection('fav').document(doc.documentID).setData({
+                          'noteUrl': doc.data['noteUrl'],
+                          'uid': MyUid,
+                          'title': doc.data['title'],
+                          'address': Mainaddress,
+                          'pic': doc.data['pic'],
+                          'token': messagingToken,
+                          'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch
+                        });
+                      }
+
+
+                    },
+                    child: Icon(isFav ? Icons.favorite : Icons.favorite_border,color: Colors.red,),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(left: 3),
+                      child: Text(FavCount.toString())),
+//                StreamBuilder<QuerySnapshot>(
+//                  stream: firestore.collection('notes').document(Note.documentID).collection('fav').snapshots(),
+//                  builder: (BuildContext context, snapshot){
+//
+//                    if(!snapshot.hasData){
+//                      return Padding(
+//                          padding: EdgeInsets.only(left: 3),
+//                          child: Text("0"));
+//                    }
+//                    int FavCount = snapshot.data.documents.length;
+//
+//                    return Padding(
+//                        padding: EdgeInsets.only(left: 3),
+//                        child: Text(FavCount.toString()));
+//                  },
+//                ),
+
+                  // ----------------------
+
+
+                ],
+              );
+            }
+        ),
+
+
+        StreamBuilder<QuerySnapshot>(
+            stream: firestore.collection('notes').document(doc.documentID).collection('likes').snapshots(),
+            builder: (context, snapshot) {
+
+
+              bool isFav;
+
+              if(!snapshot.hasData){
+                return
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: (){
+
+                          if(isFav){
+                            print('deleted');
+                            firestore
+                                .collection('notes')
+                                .document(doc.documentID).collection('likes').document(MyUid).delete();
+
+                            firestore.collection('fav').document(MyUid).collection('likes').document(doc.documentID).delete();
+                          }else{
+                            print('added');
+                            firestore
+                                .collection('notes')
+                                .document(doc.documentID).collection('likes').document(MyUid).setData({'likes':true});
+
+//                            firestore.collection('fav').document(MyUid).collection('fav').document(Note.documentID).setData({
+//                              'noteUrl': Note.data['noteUrl'],
+//                              'lat': currentLocation.latitude,
+//                              'long': currentLocation.longitude,
+//                              'uid': uid,
+//                              'title': Note.data['title'],
+//                              'address': addressName,
+//                              'pic': Note.data['pic'],
+//                              'watchedPeople': 0,
+//                              'token': messagingToken,
+//                              'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch
+//                            });
+                          }
+
+
+                        },
+                        child: Icon(Icons.thumb_up,color: Colors.grey,),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(left: 3),
+                          child: Text("0"))
+//                StreamBuilder<QuerySnapshot>(
+//                  stream: firestore.collection('notes').document(Note.documentID).collection('fav').snapshots(),
+//                  builder: (BuildContext context, snapshot){
+//
+//                    if(!snapshot.hasData){
+//                      return Padding(
+//                          padding: EdgeInsets.only(left: 3),
+//                          child: Text("0"));
+//                    }
+//                    int FavCount = snapshot.data.documents.length;
+//
+//                    return Padding(
+//                        padding: EdgeInsets.only(left: 3),
+//                        child: Text(FavCount.toString()));
+//                  },
+//                ),
+                    ],
+                  );
+              }
+
+              List<DocumentSnapshot> Data = snapshot.data.documents;
+
+              int FavCount = Data.length;
+
+//               bool isFav =  Data.where()
+
+              isFav = snapshot.data.documents.any((element) => element.documentID == MyUid);
+
+
+              return Row(
+                children: [
+                  InkWell(
+                    onTap: (){
+
+                      if(isFav){
+                        print('deleted');
+                        firestore
+                            .collection('notes')
+                            .document(doc.documentID).collection('likes').document(MyUid).delete();
+
+                      }else{
+                        print('added');
+                        firestore
+                            .collection('notes')
+                            .document(doc.documentID).collection('likes').document(MyUid).setData({'fav':true});
+
+                      }
+
+
+                    },
+                    child: Icon( Icons.thumb_up ,color: isFav ?Colors.blue: Colors.grey,),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(left: 3),
+                      child: Text(FavCount.toString()))
+//                StreamBuilder<QuerySnapshot>(
+//                  stream: firestore.collection('notes').document(Note.documentID).collection('fav').snapshots(),
+//                  builder: (BuildContext context, snapshot){
+//
+//                    if(!snapshot.hasData){
+//                      return Padding(
+//                          padding: EdgeInsets.only(left: 3),
+//                          child: Text("0"));
+//                    }
+//                    int FavCount = snapshot.data.documents.length;
+//
+//                    return Padding(
+//                        padding: EdgeInsets.only(left: 3),
+//                        child: Text(FavCount.toString()));
+//                  },
+//                ),
+
+                  // ----------------------
+                ],
+              );
+            }
         ),
 
         GestureDetector(
           onTap: (){
-            AppRoutes.push(context,Routes.Reply);
+            if(audioplayer != null){
+              audioplayer.stop();
+              _audioPlayerStateSubscription.cancel();
+              _positionSubscription.cancel();
+              Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => Reply(doc: doc,img: img,))).then((value) {
+                initState();
+              });
+            }
+
+
 
           },
           child: new Container(
@@ -1094,23 +1215,78 @@ class _VoiceMessageState extends State<VoiceMessage> {
     );
 
   }
-  Widget _upperPart(int index){
+
+  static var httpClient = new HttpClient();
+  _downloadFile(String url, String filename) async {
+    var request = await httpClient.getUrl(Uri.parse(url));
+    var response = await request.close();
+    var bytes = await consolidateHttpClientResponseBytes(response);
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    File file = new File('$dir/$filename.wav');
+    await file.writeAsBytes(bytes);
+    ShareExtend.share(file.path, "file",subject: "From Bondo App");
+  }
+
+  sendShare(String note,String title) {
+    _downloadFile(note, title);
+
+  }
+
+  Widget _upperPart(DocumentSnapshot doc,String img){
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset('assets/images/avatar.png',scale: 3.5,),
+
+        SizedBox(
+          width: 10,
+        ),
+
+        img == null ? Image.asset('assets/images/avatar.png',scale: 3.5,): CircleAvatar(backgroundImage: NetworkImage(img),),
         Container(
             margin: EdgeInsets.only(left: 5,top: 0),
-            width: SizeConfig.blockSizeHorizontal*49,
+            width: SizeConfig.screenWidth-110,
             child: Column(
               children: [
-                Text(description),
+                Row(
+                  children: <Widget>[
+                    Flexible(child: Text(doc.data['title'] == null ? '' : doc.data['title'])),
+                  ],
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 5),
                   child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.location_on,color: red,size: 15),
-                      Text(location,style: TextStyle(fontSize: 11,color: Colors.grey),)
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.location_on,color: red,size: 15),
+
+                          Text(doc.data['address'] == null ? '' : doc.data['address'],style: TextStyle(fontSize: 11,color: Colors.grey),),
+                        ],
+                      ),
+
+                      GestureDetector(
+                        onTap:() {
+
+                          _modalBottomSheetMenu(doc,img);
+                        },
+                        child: Container(
+
+                          margin: EdgeInsets.only(bottom: 0,right: 10),
+                          width: 40,
+                          height: 20,
+
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+
+
+                          ),
+                          child: Center(child: Icon(Icons.play_arrow,color: Colors.white,size: 20,),),
+                        ),
+
+                      )
+
                     ],
                   ),
                 )
@@ -1120,68 +1296,93 @@ class _VoiceMessageState extends State<VoiceMessage> {
         SizedBox(
           width: SizeConfig.blockSizeHorizontal*3,
         ),
-        new Row(
-          children: [
-            Image.asset('assets/images/road.png',scale: 4,)
-            ,Text(' '+distance+'Miles',style: TextStyle(fontSize: 11,color: Colors.grey)
-            ) ],
 
-        ),
-        PopupMenuButton<int>(
-          itemBuilder:  (context) => [
-            PopupMenuItem(
-              value: 1,
-              child: Text(
-                "Rename",
-                style: TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-            ),
-            PopupMenuItem(
-              value: 2,
-              child: Text(
-                "Delete",
-                style: TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-            ),
-            PopupMenuItem(
-              value: 3,
-              child: Text(
-                "Report",
-                style: TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-            ),
-          ],
-          child: Icon(Icons.more_vert),
-          onSelected: (value){
-            if(value==1){
-              showDialog(context: context,child: _renamePopUP());
-
-
-            }
-            if(value==2){
-
-              setState(() {
-                delete=true;
-                deleteList.add(index);
-
-
-
-              });
-            }
-          },
-        ),
 
       ],
     );
   }
-  Widget _play(){
-    return Container(
-      width: SizeConfig.screenWidth-50,
-      height: 40,
 
+
+  void _modalBottomSheetMenu(DocumentSnapshot doc,String img) {
+    showModalBottomSheet(
+      isDismissible: false,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0))),
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => StatefulBuilder(
+          builder: (context, state) => Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            width: SizeConfig.screenWidth,
+            height: SizeConfig.screenWidth * 1,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15)),
+                color: Colors.white),
+            child: Column(
+              children: <Widget>[
+
+                SizedBox(
+                  height: 20,
+                ),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(img),
+                ),
+
+                SizedBox(
+                  height: 20,
+                ),
+                _play(doc),
+
+                SizedBox(
+                  height: 20,
+                ),
+
+
+                PlayButton( doc,audioplayer),
+                MaterialButton(
+                  shape: StadiumBorder(),
+                  color: Color.fromRGBO(76, 123, 254, 1),
+                  onPressed: (){
+                    Navigator.pop(context);
+                    audioplayer.stop();
+                  },child: Text('Close',style: TextStyle(color: Colors.white),),),
+
+//                GestureDetector(
+//                  onTap: () {
+//                    setState(() {
+//
+//                    });
+//                    onPlayAudio(doc);
+//                  },
+//                  child: CircleAvatar(
+//                    backgroundColor: Colors.blue,
+//                    radius: 30,
+//                    child: Center(
+//                      child: Icon(
+//                        Icons.play_arrow,
+//                        color: Colors.white,
+//                        size: 20,
+//                      ),
+//                    ),
+//                  ),
+//                ),
+
+
+              ],
+            ),
+          ),
+        ));
+  }
+
+  Widget _play(DocumentSnapshot doc) {
+
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      width: SizeConfig.screenWidth - 50,
+      height: 40,
       decoration: BoxDecoration(
         color: fieldBackground,
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -1189,311 +1390,269 @@ class _VoiceMessageState extends State<VoiceMessage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap:_playAudio,
-            child: Container(
 
-              margin: EdgeInsets.only(bottom: 0,right: 10),
-              width: 40,
-              height: 20,
-
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-
-
-              ),
-              child: Center(child: Icon(Icons.play_arrow,color: Colors.white,size: 20,),),
-            ),
-
-          )
-          ,
-          Padding(
-              padding: EdgeInsets.only(right: 5),
-              child: Text(duration)),
-
+          StreamBuilder(
+              stream: audioplayer.onAudioPositionChanged,
+              builder: (context, snapshot) {
+                return Padding(
+                    padding: EdgeInsets.only(right: 5),
+                    child: Text(this.currentDuration));
+              }
+          ),
           Container(
-            width: SizeConfig.screenWidth-180,
-            child:LinearProgressIndicator(
-              backgroundColor: Colors.grey,
+              width: SizeConfig.screenWidth - 180,
+              child:
+              //duration != null ?
+              StreamBuilder(
+                builder: (BuildContext context,
+                    snapshot) {
+                  double value = position?.inMilliseconds?.toDouble() ?? 0.0;
+                  return Slider(
+                    activeColor: Colors.indigoAccent,
+                    min: 0.0,
+                    max: duration?.inMilliseconds?.toDouble() ?? 0.0,
+                    onChanged: (newRating) {
 
-
-            ),
-          ),
-
-          GestureDetector(
-            onTap: (){
-
-
-            },
-            child: Icon(Icons.volume_down,color: Colors.blue,size: 25,),
-          )
-        ],
-      ),
-
-    );
-
-  }
-  Widget _deleteAllPopUP(){
-    return CustomDialog(height: SizeConfig.blockSizeVertical*30,
-        child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(padding: EdgeInsets.only(right: 10),
-                        child: GestureDetector(
-                          onTap: (){
-                            AppRoutes.pop(context);
-
-                          },
-                          child: Icon(Icons.close),
-                        ),
-
-                      )
-                    ],
-                  ),
-                  Text('Delete',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),),
-                  SizedBox(height: SizeConfig.blockSizeVertical*3,),
-                  Text('Are you sure you want to delete all\n Voice Messages',textAlign: TextAlign.center,),
-                  SizedBox(height: 20,),
-                  GestureDetector(
-                    onTap:_delte,
-                    child: Container(
-                      width: SizeConfig.screenWidth,
-                      height: 45,
-                      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                      padding:EdgeInsets.only(top: 5,left: 15) ,
-                      decoration: BoxDecoration(
-                        color: red,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-
-                      ),
-                      child: Center(
-                        child: Text('Delete Now',style: TextStyle(fontSize: 18,color: Colors.white),),
-                      ),
-                    ),
-                  ),
-                ])));}
-  Widget _deletespecficPopUP(){
-    return CustomDialog(height: SizeConfig.blockSizeVertical*30,
-        child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(padding: EdgeInsets.only(right: 10),
-                        child: GestureDetector(
-                          onTap: (){
-                            AppRoutes.pop(context);
-
-                          },
-                          child: Icon(Icons.close),
-                        ),
-
-                      )
-                    ],
-                  ),
-                  Text('Delete',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),),
-                  SizedBox(height: SizeConfig.blockSizeVertical*3,),
-                  Text('Are you sure you want to delete these\n Voice Messages',textAlign: TextAlign.center,),
-                  SizedBox(height: 20,),
-                  GestureDetector(
-                    onTap:_delte,
-                    child: Container(
-                      width: SizeConfig.screenWidth,
-                      height: 45,
-                      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                      padding:EdgeInsets.only(top: 5,left: 15) ,
-                      decoration: BoxDecoration(
-                        color: red,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-
-                      ),
-                      child: Center(
-                        child: Text('Delete Now',style: TextStyle(fontSize: 18,color: Colors.white),),
-                      ),
-                    ),
-                  ),
-                ])));}
-  Widget _renamePopUP(){
-    return CustomDialog(height: SizeConfig.blockSizeVertical*40,
-        child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(padding: EdgeInsets.only(right: 10),
-                        child: GestureDetector(
-                          onTap: (){
-                            AppRoutes.pop(context);
-
-                          },
-                          child: Icon(Icons.close),
-                        ),
-
-                      )
-                    ],
-                  ),
-
-                  Text('Rename',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),),
-                  SizedBox(height: SizeConfig.blockSizeVertical*3,),
-                  new Row(
-                    mainAxisAlignment:MainAxisAlignment.start ,
-                    children: [
-                      Text('Title:',textAlign: TextAlign.center,style: TextStyle(color: Colors.grey),)
-                    ],
-                  ),
-                  SizedBox(height: SizeConfig.blockSizeVertical*2,),
-                  new Container(
-                    width: SizeConfig.screenWidth * .9,
-                    decoration: BoxDecoration(),
-                    padding:
-                    const EdgeInsets.only(left: 0.0, right: 10.0),
-                    child:   TextField(
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(10.0),
-                        hintText: "My opinion about Heliopolis streets renovation",
-
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: SizeConfig.blockSizeVertical*5,),
-
-                  GestureDetector(
-                    onTap: _rename,
-                    child: Container(
-                      height: SizeConfig.screenHeight * .06,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          color: green),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            'Save Changes',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: whitecolor),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(
-                                Icons.navigate_next,
-                                color: whitecolor,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ])));}
-  void _rename(){}
-
-  Widget _deleteMessageCard(int index){
-    return Container(
-      height: SizeConfig.blockSizeVertical*25,
-      width: SizeConfig.screenWidth-20,
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      padding: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-          color:Colors.white,
-          borderRadius: BorderRadius.all(
-            Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black54.withOpacity(0.3),
-            )
-          ]),
-      child: Column(
-        children: [
-          _upperPart(index),
-          Padding(padding: EdgeInsets.only(top: 5),
-            child: _play(),
-          ),
-
-          SizedBox(height: 10,),
-          _option(),
-        ],
-
-
-      ),
-
-    );
-
-  }
-  Widget _deletePopUP(){
-    return CustomDialog(height: SizeConfig.blockSizeVertical*50,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal:0),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(padding: EdgeInsets.only(right: 10),
-                  child: GestureDetector(
-                    onTap: (){
-                      AppRoutes.pop(context);
-
+                       audioplayer.seek((newRating / 1000).roundToDouble());
+                      // audioplayer.seek(seconds);
                     },
-                    child: Icon(Icons.close),
-                  ),
+                    value: value,
+                  );
+                },
+                initialData: 0.0,
+                stream: audioplayer.onAudioPositionChanged,
+              )
 
-                )
-              ],
-            ),
-            Text('Delete',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),),
-            SizedBox(height: SizeConfig.blockSizeVertical*3,),
-            Text('Are you sure you want to delete'),
-            Padding(padding: EdgeInsets.only(top: 5),),
-            _deleteMessageCard(0),
-            GestureDetector(
-              onTap:_delte,
-              child: Container(
-                width: SizeConfig.screenWidth-50,
-                height: 45,
-                margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                padding:EdgeInsets.only(top: 5,left: 15) ,
-                decoration: BoxDecoration(
-                  color: red,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
 
-                ),
-                child: Center(
-                  child: Text('Delete Now',style: TextStyle(fontSize: 18,color: Colors.white),),
-                ),
-              ),
-            ),
-          ],
+          buildVolume(setVolume),
 
-        ),
+
+        ],
       ),
+    );
+  }
 
-    );}
-  void _playAudio(){}
+//void _modalBottomSheetMenu(DocumentSnapshot doc) {
+//  showModalBottomSheet(
+//      shape: RoundedRectangleBorder(
+//          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0))),
+//      context: context,
+//      isScrollControlled: true,
+//      builder: (context) => StatefulBuilder(
+//        builder: (context, state) => Container(
+//          padding: EdgeInsets.symmetric(horizontal: 10),
+//          width: SizeConfig.screenWidth,
+//          height: SizeConfig.screenWidth * 1,
+//          decoration: BoxDecoration(
+//              borderRadius: BorderRadius.only(
+//                  topLeft: Radius.circular(15),
+//                  topRight: Radius.circular(15)),
+//              color: Colors.white),
+//          child: Column(
+//            children: <Widget>[
+//
+//              SizedBox(
+//                height: 20,
+//              ),
+//              CircleAvatar(
+//                backgroundImage: NetworkImage(doc.data['pic']),
+//                radius: 40,
+//              ),
+//
+//              SizedBox(
+//                height: 20,
+//              ),
+//              _play(doc),
+//
+//              SizedBox(
+//                height: 20,
+//              ),
+//
+//              GestureDetector(
+//                onTap: () {
+//                  setState(() {
+//                  });
+//                  onPlayAudio(doc);
+//                },
+//                child: CircleAvatar(
+//                  backgroundColor: Colors.blue,
+//                  radius: 20,
+//                  child: Center(
+//                    child: Icon(
+//                      Icons.play_arrow,
+//                      color: Colors.white,
+//                      size: 20,
+//                    ),
+//                  ),
+//                ),
+//              ),
+//
+//
+//            ],
+//          ),
+//        ),
+//      ));
+//}
+//
+//
+//Widget _play(DocumentSnapshot doc) {
+//
+//  bool isMute=false;
+//
+//  return Container(
+//    margin: EdgeInsets.only(top: 20),
+//    width: SizeConfig.screenWidth - 50,
+//    height: 40,
+//    decoration: BoxDecoration(
+//      color: fieldBackground,
+//      borderRadius: BorderRadius.all(Radius.circular(10)),
+//    ),
+//    child: Row(
+//      mainAxisAlignment: MainAxisAlignment.center,
+//      children: [
+//
+//        SizedBox(
+//          width: 10,
+//        ),
+//
+//        StreamBuilder(
+//            stream: audioPlayer.onAudioPositionChanged,
+//            builder: (context, snapshot) {
+//              return Padding(
+//                  padding: EdgeInsets.only(right: 5),
+//                  child: Text(currentDuration));
+//            }
+//        ),
+//        Expanded(
+//          child: StreamBuilder(
+//            builder: (BuildContext context,
+//                snapshot) {
+//              double value = position?.inMilliseconds?.toDouble() ?? 0.0;
+//              return Slider(
+//                activeColor: Colors.indigoAccent,
+//                min: 0.0,
+//                max: duration?.inMilliseconds?.toDouble() ?? 0.0,
+//                onChanged: (newRating) {
+//                },
+//                value: value,
+//              );
+//            },
+//            initialData: 0.0,
+//            stream: audioPlayer.onAudioPositionChanged,
+//          ),
+//        ),
+//
+//        buildVolume(setVolume),
+//
+//      ],
+//    ),
+//  );
+//}
+//
+
+
+  void cancelPlayerSubscriptions() {
+    if (audioplayer != null) {
+      _audioPlayerStateSubscription.cancel();
+      _audioPlayerStateSubscription = null;
+    }
+  }
+
+  setVolume(bool d){
+    audioplayer.mute(d);
+  }
+  void onPlayAudio(DocumentSnapshot Note) async {
+    await audioplayer.play(
+      Note['noteUrl'],
+    );
+  }
   void _delte(){}
 }
+
+class buildVolume extends StatefulWidget {
+
+  Function setVolume;
+  buildVolume(this.setVolume);
+  @override
+  _buildVolumeState createState() => _buildVolumeState();
+}
+
+class _buildVolumeState extends State<buildVolume> {
+  bool isMuted = false;
+  @override
+  Widget build(BuildContext context) {
+    return           GestureDetector(
+      onTap: () {
+        setState(() {
+          isMuted = !isMuted;
+        });
+
+        widget.setVolume(isMuted);
+
+      },
+      child: Icon(
+        isMuted? Icons.volume_mute :Icons.volume_down,
+        color: Colors.blue,
+        size: 25,
+      ),
+    );
+  }
+}
+
+class PlayButton extends StatefulWidget {
+  DocumentSnapshot doc;
+  AudioPlayer audioPlayer;
+  PlayButton(this.doc,this.audioPlayer);
+
+  @override
+  _PlayButtonState createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<PlayButton> {
+
+  bool isPause = false;
+
+
+  @override
+  void initState() {
+
+
+
+    widget.audioPlayer.onPlayerStateChanged.listen((event) {
+      if(event == AudioPlayerState.COMPLETED){
+        setState(() {
+          isPause = !isPause;
+        });
+      }
+    });
+    super.initState();
+  }
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isPause = !isPause;
+        });
+        isPause==false ? widget.audioPlayer.pause() :  widget.audioPlayer.play( widget.doc.data['noteUrl'],);
+      },
+      child: CircleAvatar(
+        backgroundColor: Colors.blue,
+        radius: 30,
+        child: Center(
+          child: Icon(
+            isPause  ? Icons.pause : Icons.play_arrow,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+

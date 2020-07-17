@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<resources>
+    <string name="app_name">bondo</string>
+    <string name="facebook_app_id">279085483288076</string>
+    <string name="fb_login_protocol_scheme">fb279085483288076</string>
+
+</resources>

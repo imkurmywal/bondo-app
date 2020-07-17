@@ -1,3 +1,4 @@
+import 'package:bondo/screens/profileFisrst.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -6,20 +7,20 @@ class Routes {
   static const PHONE_VERIFICATION = '/phone_verification';
   static const LOGIN = '/login';
   static const FORGET_PASSWORD = '/forget_password';
-/*<<<<<<< HEAD*/
+
   static const All_Tabs = '/all_tabview';
   static const Settings = '/setting';
   static const Reply = '/reply';
 
-/*=======*/
   static const MAP_SCREEN = '/map_screen';
   static const VOICE_MESSAGES = '/voice_messages';
   static const NOTIFICATIONS = '/notifications';
   static const PROFILE = '/profile';
+  static const FirstProfile = '/firstprofile';
   static const SETTINGS = '/settings';
-/*
->>>>>>> 1e053328800b8fc25f375ea0c4cd251c3569ecf8
-*/
+  static const MYPOSTS = '/myposts';
+  static const REPLIEDPOSTS = '/replied';
+
 }
 
 class AppRoutes {

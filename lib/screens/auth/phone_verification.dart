@@ -1,14 +1,11 @@
 import 'dart:convert';
 import 'package:bondo/config/size_config.dart';
-import 'file:///C:/Users/TYB/Desktop/Work/Fiverr%20Adloo/adloo_bondo/lib/screens/auth/login.dart';
 import 'package:bondo/services/phone_verification_service.dart';
 import 'package:bondo/utils/color.dart';
 import 'package:bondo/utils/routes.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
@@ -171,13 +168,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             length: 6,
             obsecureText: false,
             animationType: AnimationType.fade,
-//            shape: PinCodeFieldShape.underline,
-//            activeColor: Colors.grey,
-//            inactiveColor: Colors.black,
             animationDuration: Duration(milliseconds: 300),
-//            borderRadius: BorderRadius.circular(5),
-//            fieldHeight: 20,
-//            fieldWidth: 40,
             onChanged: (value) {
               setState(() {
                 confirmationCode = value;
@@ -185,17 +176,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             },
           ),
         ),
-//        Padding(
-//          padding: EdgeInsets.only(top: 20),
-//          child: Text(
-//            'Instead of Code Call me?',
-//            style: TextStyle(
-//                fontSize: 15,
-//                color: Colors.blue,
-//                fontWeight: FontWeight.w500,
-//                decoration: TextDecoration.underline),
-//          ),
-//        ),
+
         SizedBox(
           height: SizeConfig.blockSizeVertical * 5,
         ),
