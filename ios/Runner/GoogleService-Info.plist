@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>752133627909-o8k3pvsntqrlr13ako8mgss7gdm21d1v.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.752133627909-o8k3pvsntqrlr13ako8mgss7gdm21d1v</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>752133627909-15etr24tatn318rk9ige5dsk1aumv6e3.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBDu1Als2_nfF8bZvgn8galDU6xrLMoy6Y</string>
+	<key>GCM_SENDER_ID</key>
+	<string>752133627909</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.adloo.bondo</string>
+	<key>PROJECT_ID</key>
+	<string>bondo-59973</string>
+	<key>STORAGE_BUCKET</key>
+	<string>bondo-59973.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:752133627909:ios:bbbac266cbd25ed054bc6c</string>
+	<key>DATABASE_URL</key>
+	<string>https://bondo-59973.firebaseio.com</string>
+</dict>
+</plist>
